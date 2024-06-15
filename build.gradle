@@ -35,8 +35,8 @@ dependencies {
 
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
     testImplementation 'org.springframework.boot:spring-boot-starter-test:2.7.1'
-    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.7.1'
-    testImplementation 'org.springframework.amqp:spring-rabbit-test:2.7.1'
+    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:3.2.3'
+    testImplementation 'org.springframework.amqp:spring-rabbit-test:2.4.7'
 }
 
 // Helps faster load times in Crio workspace.
