@@ -124,6 +124,8 @@ class XMemeAssessment(TestCase):
         # print("verify that response status code is one of " + str(self.POSITIVE_STATUS_CODES))
         self.assertIn(response.status_code, self.POSITIVE_STATUS_CODES)
         data = self.decode_and_load_json(response)
+
+        self.assertTrue('id' in data)  # Ensure 'id' exists in the response
         # print('First post data: ', data)
         self.FIRST_POST_ID = data['id']
         # print('Assigned successfully' + str(self.FIRST_POST_ID))
@@ -142,6 +144,8 @@ class XMemeAssessment(TestCase):
         self.assertIn(response.status_code, self.POSITIVE_STATUS_CODES)
         data = self.decode_and_load_json(response)
         # print('First post data: ', data)
+
+        self.assertTrue('id' in data)  # Ensure 'id' exists in the response
 
         # inserted, now get it using get api.
         endpoint = 'memes/{}'.format(data["id"])
