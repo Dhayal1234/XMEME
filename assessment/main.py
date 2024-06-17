@@ -89,8 +89,7 @@ class XMemeAssessment(TestCase):
         except Exception as e:
             # print("Except")
             logging.exception(str(e))
-            #return response
-            raise Exception("Failed to decode response")
+            return response
         return data
     ### Helper functions end here
 
@@ -124,8 +123,7 @@ class XMemeAssessment(TestCase):
         response = self.post_api(endpoint, json.dumps(body))
         # print("verify that response status code is one of " + str(self.POSITIVE_STATUS_CODES))
         self.assertIn(response.status_code, self.POSITIVE_STATUS_CODES)
-        #data = self.decode_and_load_json(response)
-        data = response.json()
+        data = self.decode_and_load_json(response)
 
         # print('First post data: ', data)
         self.FIRST_POST_ID = data['id']
