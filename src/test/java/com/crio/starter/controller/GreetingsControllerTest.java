@@ -18,7 +18,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.util.UriComponentsBuilder;
 
-
 @AutoConfigureMockMvc
 @SpringBootTest
 class GreetingsControllerTest {
@@ -31,7 +30,7 @@ class GreetingsControllerTest {
 
   @Test
   void sayHello() throws Exception {
-    //given
+    // given
     Mockito.doReturn(new ResponseDto("Hello Java"))
         .when(greetingsService).getMessage("001");
 
@@ -45,7 +44,7 @@ class GreetingsControllerTest {
         get(uri.toString()).accept(APPLICATION_JSON_VALUE)
     ).andReturn().getResponse();
 
-    //then
+    // then
     String responseStr = response.getContentAsString();
     ObjectMapper mapper = new ObjectMapper();
     ResponseDto responseDto = mapper.readValue(responseStr, ResponseDto.class);

@@ -18,5 +18,4 @@ public class GreetingsController {
   public ResponseDto sayHello(@RequestParam String messageId) {
     return greetingsService.getMessage(messageId);
   }
-
 }
