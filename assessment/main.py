@@ -57,11 +57,13 @@ class XMemeAssessment(unittest.TestCase):
 
     def decode_and_load_json(self, response):
         try:
-            data = json.loads(response.content.decode('utf-8'))
-            return data
-        except Exception as e:
-            logging.exception(str(e))
-            return None
+        text_response = response.text
+        print('Raw response:', text_response)  # Debug statement to print raw response
+        data = json.loads(text_response)
+        return data
+    except json.JSONDecodeError as e:
+        print(f"JSON decoding error: {e.msg}")
+        return {}
 
     @pytest.fixture(scope="session", autouse=True)
     def db_cleanup(self, request):
@@ -78,17 +80,22 @@ class XMemeAssessment(unittest.TestCase):
 
     @pytest.mark.run(order=2)
     def test_1_first_post_test(self):
-        endpoint = 'memes/'
-        body = json.dumps({
-            'name': 'crio-user',
-            'caption': 'crio-meme',
-            'url': self.SAMPLE_URL + '130.png'
-        })
-        response = self.post_api(endpoint, body)
-        self.assertIn(response.status_code, self.POSITIVE_STATUS_CODES)
-        data = self.decode_and_load_json(response)
-        self.assertIsNotNone(data.get('id'))
+    """Post first MEME and verify that it returns id in the response"""
+    endpoint = 'memes/'
+    body = {
+        'name': 'crio-user',
+        'caption': 'crio-meme',
+        'url': self.SAMPLE_URL + self.FIRST_POST
+    }
+    response = self.post_api(endpoint, json.dumps(body))
+    self.assertIn(response.status_code, self.POSITIVE_STATUS_CODES)
+    data = self.decode_and_load_json(response)
+    if 'id' in data:
         self.FIRST_POST_ID = data['id']
+    else:
+        print("Error: 'id' not found in response data", data)
+    self.assertTrue('id' in data)
+
 
     @pytest.mark.run(order=3)
     def test_2_get_single_meme(self):
