@@ -56,14 +56,11 @@ class XMemeAssessment(unittest.TestCase):
         return response
 
     def decode_and_load_json(self, response):
-        try:
-        text_response = response.text
-        print('Raw response:', text_response)  # Debug statement to print raw response
-        data = json.loads(text_response)
-        return data
-    except json.JSONDecodeError as e:
-        print(f"JSON decoding error: {e.msg}")
-        return {}
+    try:
+        return response.json()
+    except ValueError:
+        self.fail("Invalid JSON response")
+
 
     @pytest.fixture(scope="session", autouse=True)
     def db_cleanup(self, request):
@@ -90,33 +87,30 @@ class XMemeAssessment(unittest.TestCase):
     response = self.post_api(endpoint, json.dumps(body))
     self.assertIn(response.status_code, self.POSITIVE_STATUS_CODES)
     data = self.decode_and_load_json(response)
-    if 'id' in data:
-        self.FIRST_POST_ID = data['id']
-    else:
-        print("Error: 'id' not found in response data", data)
-    self.assertTrue('id' in data)
+    self.FIRST_POST_ID = data['id']
 
 
     @pytest.mark.run(order=3)
-    def test_2_get_single_meme(self):
-        endpoint = 'memes/'
-        body = json.dumps({
-            'name': 'crio-user9999',
-            'caption': 'crio-meme9999',
-            'url': self.SAMPLE_URL + '130.png'
-        })
-        response = self.post_api(endpoint, body)
-        self.assertIn(response.status_code, self.POSITIVE_STATUS_CODES)
-        data = self.decode_and_load_json(response)
+    def test_2_get_single_meme(self):  # Score 6
+    """Post a new MEME, capture its Id, and verify its GET /meme/{id} returns correct MEME"""
+    endpoint = 'memes/'
+    body = {
+        'name': 'crio-user' + "9999",
+        'caption': 'crio-meme' + "9999",
+        'url': self.SAMPLE_URL + self.FIRST_POST
+    }
+    response = self.post_api(endpoint, json.dumps(body))
+    self.assertIn(response.status_code, self.POSITIVE_STATUS_CODES)
+    data = self.decode_and_load_json(response)
+    endpoint = f'memes/{data["id"]}'
+    get_response = self.get_api(endpoint)
+    self.assertIn(get_response.status_code, self.POSITIVE_STATUS_CODES)
+    get_data = self.decode_and_load_json(get_response)
+    self.assertEqual(get_data['name'], body['name'])
+    self.assertEqual(get_data['caption'], body['caption'])
+    self.assertEqual(get_data['url'], body['url'])
 
-        endpoint = f'memes/{data["id"]}'
-        response = self.get_api(endpoint)
-        self.assertIn(response.status_code, self.POSITIVE_STATUS_CODES)
-        data = self.decode_and_load_json(response)
-        self.assertEqual(data['name'], 'crio-user9999')
-        self.assertEqual(data['caption'], 'crio-meme9999')
-        self.assertEqual(data['url'], self.SAMPLE_URL + '130.png')
-
+    
     @pytest.mark.run(order=4)
     def test_3_get_single_meme_non_existent_test(self):
         endpoint = 'memes/0909'
