@@ -120,22 +120,13 @@ class XMemeAssessment(TestCase):
             'caption': 'crio-meme',
             'url': self.SAMPLE_URL + self.FIRST_POST
         }
-        #response = self.post_api(endpoint, json.dumps(body))
+        response = self.post_api(endpoint, json.dumps(body))
         # print("verify that response status code is one of " + str(self.POSITIVE_STATUS_CODES))
-        #self.assertIn(response.status_code, self.POSITIVE_STATUS_CODES)
-        #data = self.decode_and_load_json(response)
+        self.assertIn(response.status_code, self.POSITIVE_STATUS_CODES)
+        data = self.decode_and_load_json(response)
 
         # print('First post data: ', data)
-        #self.FIRST_POST_ID = data['id']
-        response = self.post_api(endpoint, json.dumps(body))
-        if response.status_code == 200:  # Check for successful creation (200)
-            response_text = response.text  # Assuming the response has a `text` attribute
-            data = json.loads(response_text)
-            meme_id = data.get('id')
-            self.FIRST_POST_ID = meme_id
-        else:
-            # Handle unsuccessful creation
-            print(f"Error: POST request failed with status code {response.status_code}")
+        self.FIRST_POST_ID = data['id']
         # print('Assigned successfully' + str(self.FIRST_POST_ID))
 
     @pytest.mark.run(order=3)
@@ -147,31 +138,18 @@ class XMemeAssessment(TestCase):
             'caption': 'crio-meme' + "9999",
             'url': self.SAMPLE_URL + self.FIRST_POST
         }
-        #response = self.post_api(endpoint, json.dumps(body))
-        # print("verify that response status code is one of " + str(self.POSITIVE_STATUS_CODES))
-        #self.assertIn(response.status_code, self.POSITIVE_STATUS_CODES)
-        #data = self.decode_and_load_json(response)
-        # print('First post data: ', data)
-
         response = self.post_api(endpoint, json.dumps(body))
-        if response.status_code == 200:  # Check for successful creation (200)
-            response_text = response.text  # Assuming the response has a `text` attribute
-            data = json.loads(response_text)
-            meme_id = data.get('id')
-            self.FIRST_POST_ID = meme_id
-            endpoint = f'memes/{meme_id}'  # Use f-string for string formatting
-        else:
-            # Handle unsuccessful creation
-            print(f"Error: POST request failed with status code {response.status_code}")
+        # print("verify that response status code is one of " + str(self.POSITIVE_STATUS_CODES))
+        self.assertIn(response.status_code, self.POSITIVE_STATUS_CODES)
+        data = self.decode_and_load_json(response)
+        # print('First post data: ', data)
 
 
         # inserted, now get it using get api.
-        #endpoint = 'memes/{}'.format(data["id"])
+        endpoint = 'memes/{}'.format(data["id"])
         response = self.get_api(endpoint)
         self.assertIn(response.status_code, self.POSITIVE_STATUS_CODES)
-        #data = self.decode_and_load_json(response)
-        response_text = response.text
-        data = json.loads(response_text)
+        data = self.decode_and_load_json(response)
         # print('get single: ', data)
         self.assertEqual(data['name'], 'crio-user' + "9999")
         self.assertEqual(data['caption'], 'crio-meme' + "9999")
