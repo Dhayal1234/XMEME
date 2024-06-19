@@ -1,6 +1,7 @@
 package com.crio.starter.controller;
 
 import com.crio.starter.data.MemeEntity;
+import com.crio.starter.dto.MemeDto;
 import com.crio.starter.service.MemeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -47,15 +48,11 @@ public class MemeController {
   @GetMapping("/{id}")
   public ResponseEntity<Object> getMemeById(@PathVariable String id) {
     try {
-      MemeEntity meme = memeService.getMemeById(id);
+      MemeDto meme = memeService.getMemeById(id);
       return new ResponseEntity<>(meme, HttpStatus.OK);
     } catch (IllegalArgumentException e) {
       return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
   }
-
-
-
-
 }
 
