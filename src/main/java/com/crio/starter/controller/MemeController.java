@@ -27,6 +27,7 @@ public class MemeController {
 
     try {
       MemeEntity savedMeme = memeService.createMeme(memeEntity);
+      System.out.print("Test message "+savedMeme.getId());
       return new ResponseEntity<>(savedMeme.getId(), HttpStatus.CREATED);
     } catch (IllegalArgumentException e) {
       return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);

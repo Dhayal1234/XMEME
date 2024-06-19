@@ -1,6 +1,7 @@
 package com.crio.starter.service;
 
 import com.crio.starter.data.MemeEntity;
+
 import com.crio.starter.repository.MemeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +30,9 @@ public class MemeService {
   }
 
   public MemeEntity getMemeById(String id) {
-    return memeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Meme not found"));
+    //return memeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Meme not found"));
+    MemeEntity memeEntity = memeRepository.findById(id)
+    .orElseThrow(() -> new IllegalArgumentException("Meme not found"));
+     return new MemeEntity(memeEntity.getId(), memeEntity.getName(), memeEntity.getUrl(), memeEntity.getCaption());
   }
 }

@@ -19,4 +19,11 @@ public class MemeEntity {
   private String url;
   private String caption;
   private LocalDateTime timestamp = LocalDateTime.now();
+
+  public MemeEntity(String id, String name, String url, String caption) {
+    this.id = id;
+    this.name = name;
+    this.url = url;
+    this.caption = caption;
+}
 }
