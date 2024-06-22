@@ -1,6 +1,7 @@
 package com.crio.starter.controller;
 
 import com.crio.starter.data.MemeEntity;
+import com.crio.starter.dto.MemeDto;
 import com.crio.starter.service.MemeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -107,7 +108,7 @@ public class MemeControllerTest {
 
     @Test
     public void testGetMemeById_Success() throws Exception {
-        MemeEntity meme = new MemeEntity();
+        MemeDto meme = new MemeDto();
         meme.setId("1");
         meme.setName("John Doe");
         meme.setCaption("This is a meme");

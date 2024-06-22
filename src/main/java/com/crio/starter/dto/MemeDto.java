@@ -1,18 +1,18 @@
 package com.crio.starter.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class MemeDto {
     private String id;
     private String name;
     private String url;
     private String caption;
 
-    // Constructor
-    public MemeDto(String id, String name, String url, String caption) {
-        this.id = id;
-        this.name = name;
-        this.url = url;
-        this.caption = caption;
-    }
 
     // Getters and setters
     public String getId() { return id; }
