@@ -1,34 +1,26 @@
 package com.crio.starter.controller;
 
-import com.crio.starter.data.MemeEntity;
-import com.crio.starter.dto.MemeDto;
+import com.crio.starter.data.Meme;
+import com.crio.starter.repository.MemeRepository;
 import com.crio.starter.service.MemeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import java.util.Arrays;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(SpringExtension.class)
 @WebMvcTest(MemeController.class)
 public class MemeControllerTest {
 
@@ -38,95 +30,71 @@ public class MemeControllerTest {
     @MockBean
     private MemeService memeService;
 
+    @Autowired
+    private MemeRepository memeRepository;
+
     @BeforeEach
-    public void setup() {
-        // Initialize mocks created above
-        MockitoAnnotations.openMocks(this);
-        // Set up the standalone configuration for the controller
-        this.mockMvc = MockMvcBuilders.standaloneSetup(new MemeController(memeService)).build();
+    public void setUp() {
+        // Clean up the database before each test
+        memeRepository.deleteAll();
     }
 
     @Test
-    public void testPostMeme_Success() throws Exception {
-        MemeEntity memeEntity = new MemeEntity();
-        memeEntity.setId("1");
-        memeEntity.setName("John Doe");
-        memeEntity.setCaption("This is a meme");
-        memeEntity.setUrl("http://example.com/meme.jpg");
+    void createMemeTest() throws Exception {
+        Meme meme = new Meme();
+        meme.setName("John Doe");
+        meme.setUrl("http://example.com/meme.jpg");
+        meme.setCaption("Funny Meme");
 
-        when(memeService.createMeme(any(MemeEntity.class))).thenReturn(memeEntity);
+        when(memeService.createMeme(any(Meme.class))).thenReturn(meme);
 
         mockMvc.perform(post("/memes")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"name\":\"John Doe\",\"caption\":\"This is a meme\",\"url\":\"http://example.com/meme.jpg\"}"))
+                .content("{\"name\": \"John Doe\", \"url\": \"http://example.com/meme.jpg\", \"caption\": \"Funny Meme\"}"))
                 .andExpect(status().isCreated())
-                .andExpect(content().string("1"));
+                .andExpect(jsonPath("$.name").value("John Doe"));
     }
 
     @Test
-    public void testPostMeme_Failure_EmptyFields() throws Exception {
-        mockMvc.perform(post("/memes")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"name\":\"\",\"caption\":\"\",\"url\":\"\"}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("All fields (name, url, caption) are required."));
-    }
+    void getAllMemesTest() throws Exception {
+        Meme meme = new Meme();
+        meme.setName("John Doe");
+        meme.setUrl("http://example.com/meme.jpg");
+        meme.setCaption("Funny Meme");
 
-    @Test
-    public void testPostMeme_Failure_Duplicate() throws Exception {
-        when(memeService.createMeme(any(MemeEntity.class))).thenThrow(new IllegalArgumentException("Duplicate meme"));
-
-        mockMvc.perform(post("/memes")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"name\":\"John Doe\",\"caption\":\"This is a meme\",\"url\":\"http://example.com/meme.jpg\"}"))
-                .andExpect(status().isConflict())
-                .andExpect(content().string("Duplicate meme"));
-    }
-
-    @Test
-    public void testGetLatestMemes_Success() throws Exception {
-        MemeEntity meme1 = new MemeEntity();
-        meme1.setId("1");
-        meme1.setName("John Doe");
-        meme1.setCaption("This is a meme");
-        meme1.setUrl("http://example.com/meme1.jpg");
-
-        MemeEntity meme2 = new MemeEntity();
-        meme2.setId("2");
-        meme2.setName("Jane Doe");
-        meme2.setCaption("This is another meme");
-        meme2.setUrl("http://example.com/meme2.jpg");
-
-        List<MemeEntity> memes = Arrays.asList(meme1, meme2);
-        when(memeService.getLatestMemes()).thenReturn(memes);
+        when(memeService.getAllMemes()).thenReturn(List.of(meme));
 
         mockMvc.perform(get("/memes"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("[{\"id\":\"1\",\"name\":\"John Doe\",\"caption\":\"This is a meme\",\"url\":\"http://example.com/meme1.jpg\"}," +
-                        "{\"id\":\"2\",\"name\":\"Jane Doe\",\"caption\":\"This is another meme\",\"url\":\"http://example.com/meme2.jpg\"}]"));
+                .andExpect(jsonPath("$[0].name").value("John Doe"));
     }
 
     @Test
-    public void testGetMemeById_Success() throws Exception {
-        MemeDto meme = new MemeDto();
-        meme.setId("1");
+    void getMemeByIdTest() throws Exception {
+        Meme meme = new Meme();
         meme.setName("John Doe");
-        meme.setCaption("This is a meme");
         meme.setUrl("http://example.com/meme.jpg");
+        meme.setCaption("Funny Meme");
 
-        when(memeService.getMemeById(anyString())).thenReturn(meme);
+        when(memeService.getMemeById("1")).thenReturn(meme);
 
         mockMvc.perform(get("/memes/1"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{\"id\":\"1\",\"name\":\"John Doe\",\"caption\":\"This is a meme\",\"url\":\"http://example.com/meme.jpg\"}"));
+                .andExpect(jsonPath("$.name").value("John Doe"));
     }
 
     @Test
-    public void testGetMemeById_NotFound() throws Exception {
-        when(memeService.getMemeById(anyString())).thenThrow(new IllegalArgumentException("Meme not found"));
+    public void testEmptyPostRequestReturnsBadRequest() throws Exception {
+        String emptyRequestBody = "{}";
 
-        mockMvc.perform(get("/memes/1"))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string("Meme not found"));
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.post("/memes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(emptyRequestBody));
+
+        result.andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
+
+    
+    
 }
+

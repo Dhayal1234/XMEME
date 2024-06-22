@@ -1,38 +1,14 @@
 package com.crio.starter.service;
 
-import com.crio.starter.data.MemeEntity;
-import com.crio.starter.dto.MemeDto;
+import com.crio.starter.exchange.ResponseDto;
 import com.crio.starter.repository.MemeRepository;
+import com.crio.starter.data.Meme;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Service
-@RequiredArgsConstructor
-public class MemeService {
-
-  private final MemeRepository memeRepository;
-
-  public MemeEntity createMeme(MemeEntity memeEntity) {
-    if (memeRepository.existsByNameAndUrlAndCaption(memeEntity.getName(), memeEntity.getUrl(), memeEntity.getCaption())) {
-      throw new IllegalArgumentException("Duplicate meme");
-    }
-    return memeRepository.save(memeEntity);
-  }
-
-  public List<MemeEntity> getLatestMemes() {
-    return memeRepository.findAll(PageRequest.of(0, 100, Sort.by(Sort.Direction.DESC, "timestamp")))
-        .getContent();
-  }
-
-  public MemeDto getMemeById(String id) {
-    //return memeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Meme not found"));
-    MemeEntity memeEntity = memeRepository.findById(id)
-    .orElseThrow(() -> new IllegalArgumentException("Meme not found"));
-     return new MemeDto(memeEntity.getId(), memeEntity.getName(), memeEntity.getUrl(), memeEntity.getCaption());
-  }
+public interface MemeService {
+    Meme createMeme(Meme meme);
+    List<Meme> getAllMemes();
+    Meme getMemeById(String id);
 }
